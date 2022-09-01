@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BlogProject.Enums;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace BlogProject.Models
@@ -28,8 +29,10 @@ namespace BlogProject.Models
         [StringLength(500, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 1)]
         public string ModeratedBody { get; set; }
 
+        public ModerationType ModerationType { get; set; }
+
         public virtual Post Post { get; set; }
-        public virtual IdentityUser Author { get; set; }
-        public virtual IdentityUser Moderator { get; set; }
+        public virtual BlogUser Author { get; set; }
+        public virtual BlogUser Moderator { get; set; }
     }
 }

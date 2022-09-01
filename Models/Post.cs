@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using BlogProject.Enums;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -29,7 +30,7 @@ namespace BlogProject.Models
         [Display(Name = "Updated on")]
         public DateTime? UpdatedDate { get; set; }
         
-        public bool IsReady { get; set; }
+        public ReadyStatus ReadyStatus { get; set; }
 
         public string Slug { get; set; }
 
@@ -40,7 +41,7 @@ namespace BlogProject.Models
         public IFormFile Image { get; set; }
 
         public virtual Blog Blog { get; set; }
-        public virtual IdentityUser Author { get; set; }
+        public virtual BlogUser Author { get; set; }
 
         public virtual ICollection<Tag> Tags { get; set; } = new HashSet<Tag>();
         public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
