@@ -7,7 +7,7 @@ namespace BlogProject.Models
     {
         public int Id { get; set; }
         public int PostId { get; set; }
-        public string AuthorId { get; set; }
+        public string BlogUserId { get; set; }
 
         [Required]
         [Display(Name = "Tag")]
@@ -15,6 +15,6 @@ namespace BlogProject.Models
         public string Text { get; set; }
 
         public virtual Post Post { get; set; }
-        public virtual BlogUser Author { get; set; }
+        public virtual BlogUser BlogUser { get; set; }
     }
 }
