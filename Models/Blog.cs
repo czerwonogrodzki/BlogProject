@@ -7,7 +7,7 @@ namespace BlogProject.Models
     public class Blog
     {
         public int Id { get; set; }
-        public string AuthorId { get; set; }
+        public string BlogUserId { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 1)]
@@ -34,7 +34,8 @@ namespace BlogProject.Models
         [NotMapped]
         public IFormFile Image { get; set; }
 
-        public virtual BlogUser Author { get; set; }
+        [Display(Name = "Author")]
+        public virtual BlogUser BlogUser { get; set; }
         public virtual ICollection<Post> Posts { get; set; } = new HashSet<Post>();
 
     }
