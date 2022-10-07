@@ -8,8 +8,11 @@ namespace BlogProject.Models
     public class Post
     {
         public int Id { get; set; }
+
+        [Display(Name = "Blog Name")]
         public int BlogId { get; set; }
-        public string BlogUserId { get; set; }
+
+        public string? BlogUserId { get; set; }
 
         [Required]
         [StringLength(70, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 1)]
@@ -32,16 +35,16 @@ namespace BlogProject.Models
         
         public ReadyStatus ReadyStatus { get; set; }
 
-        public string Slug { get; set; }
+        public string? Slug { get; set; }
 
-        public byte[] ImageData { get; set; }
-        public string ContentType { get; set; }
+        public byte[]? ImageData { get; set; }
+        public string? ContentType { get; set; }
 
         [NotMapped]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
 
-        public virtual Blog Blog { get; set; }
-        public virtual BlogUser BlogUser { get; set; }
+        public virtual Blog? Blog { get; set; }
+        public virtual BlogUser? BlogUser { get; set; }
 
         public virtual ICollection<Tag> Tags { get; set; } = new HashSet<Tag>();
         public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();

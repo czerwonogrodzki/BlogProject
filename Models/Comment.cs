@@ -8,8 +8,8 @@ namespace BlogProject.Models
     {
         public int Id { get; set; }
         public int PostId { get; set; }
-        public string BlogUserId { get; set; }
-        public string ModeratorId { get; set; }
+        public string? BlogUserId { get; set; }
+        public string? ModeratorId { get; set; }
 
         [Required]
         [StringLength(500, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 1)]
@@ -27,13 +27,13 @@ namespace BlogProject.Models
 
         [Display(Name = "Moderated")]
         [StringLength(500, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 1)]
-        public string ModeratedBody { get; set; }
+        public string? ModeratedBody { get; set; }
 
-        public ModerationType ModerationType { get; set; }
+        public ModerationType? ModerationType { get; set; }
 
-        public virtual Post Post { get; set; }
-        public virtual BlogUser BlogUser { get; set; }
-        public virtual BlogUser Moderator { get; set; }
+        public virtual Post? Post { get; set; }
+        public virtual BlogUser? BlogUser { get; set; }
+        public virtual BlogUser? Moderator { get; set; }
         
     }
 }

@@ -7,7 +7,7 @@ namespace BlogProject.Models
     public class Blog
     {
         public int Id { get; set; }
-        public string BlogUserId { get; set; }
+        public string? BlogUserId { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 1)]
@@ -26,16 +26,16 @@ namespace BlogProject.Models
         public DateTime? UpdatedDate { get; set; }
 
         [Display(Name = "Blog Image")]
-        public byte[] ImageData { get; set; }
+        public byte[]? ImageData { get; set; }
 
         [Display(Name = "Image Type")]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; }
 
         [NotMapped]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
 
         [Display(Name = "Author")]
-        public virtual BlogUser BlogUser { get; set; }
+        public virtual BlogUser? BlogUser { get; set; }
         public virtual ICollection<Post> Posts { get; set; } = new HashSet<Post>();
 
     }
