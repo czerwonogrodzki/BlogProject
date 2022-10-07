@@ -20,32 +20,31 @@ namespace BlogProject.Controllers
         }
 
         // GET: Comments
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> OriginalIndex()
         {
-            var applicationDbContext = _context.Comments.Include(c => c.BlogUser).Include(c => c.Moderator).Include(c => c.Post);
-            return View(await applicationDbContext.ToListAsync());
+            var originalComments = await _context.Comments.ToListAsync();
+            return View("Index", originalComments);
         }
 
-        // GET: Comments/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Moderated()
         {
-            if (id == null || _context.Comments == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments
-                .Include(c => c.BlogUser)
-                .Include(c => c.Moderator)
-                .Include(c => c.Post)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return View(comment);
+            var moderatedComments = await _context.Comments.Where(c => c.ModeratedDate != null).ToListAsync();
+            return View("Index", moderatedComments);
         }
+
+        //public async Task<IActionResult> Deleted()
+        //{
+
+        //}
+
+        //public async Task<IActionResult> Index()
+        //{
+        //    var applicationDbContext = _context.Comments.Include(c => c.BlogUser).Include(c => c.Moderator).Include(c => c.Post);
+        //    return View(await applicationDbContext.ToListAsync());
+        //}
+
+       
 
         // GET: Comments/Create
         public IActionResult Create()
@@ -61,10 +60,11 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PostId,BlogUserId,ModeratorId,CommentBody,CreatedDate,UpdatedDate,ModeratedDate,DeletedDate,ModeratedBody,ModerationType")] Comment comment)
+        public async Task<IActionResult> Create([Bind("Id,PostId,CommentBody")] Comment comment)
         {
             if (ModelState.IsValid)
             {
+                comment.CreatedDate = DateTime.Now;
                 _context.Add(comment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

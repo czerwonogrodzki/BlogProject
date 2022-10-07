@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BlogProject.Data;
 using BlogProject.Models;
+using BlogProject.Services;
 
 namespace BlogProject.Controllers
 {
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ISlugService _slugService;
 
-        public PostsController(ApplicationDbContext context)
+        public PostsController(ApplicationDbContext context, ISlugService slugService)
         {
             _context = context;
+            _slugService = slugService;
         }
 
         // GET: Posts
@@ -49,7 +52,7 @@ namespace BlogProject.Controllers
         // GET: Posts/Create
         public IActionResult Create()
         {
-            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Description");
+            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Name");
             ViewData["BlogUserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
@@ -59,16 +62,27 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,BlogId,BlogUserId,Title,Abstract,Content,CreatedDate,UpdatedDate,ReadyStatus,Slug,ImageData,ContentType")] Post post)
+        public async Task<IActionResult> Create([Bind("BlogId,Title,Abstract,Content,ReadyStatus,Image")] Post post, List<string> tagValues)
         {
             if (ModelState.IsValid)
             {
+                post.CreatedDate = DateTime.Now;
+                
+                var slug = _slugService.UrlFriendly(post.Title);
+                if (!_slugService.IsUnique(slug))
+                {
+                    ModelState.AddModelError("Title", "Title you provided cannot be used");
+                    ViewData["TagValues"] = string.Join(",", tagValues);
+                    return View(post);
+                }
+                post.Slug = slug;
+
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Description", post.BlogId);
-            ViewData["BlogUserId"] = new SelectList(_context.Users, "Id", "Id", post.BlogUserId);
+
             return View(post);
         }
 
@@ -85,8 +99,7 @@ namespace BlogProject.Controllers
             {
                 return NotFound();
             }
-            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Description", post.BlogId);
-            ViewData["BlogUserId"] = new SelectList(_context.Users, "Id", "Id", post.BlogUserId);
+            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Name", post.BlogId);
             return View(post);
         }
 
@@ -95,7 +108,7 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,BlogUserId,Title,Abstract,Content,CreatedDate,UpdatedDate,ReadyStatus,Slug,ImageData,ContentType")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Slug,Image")] Post post)
         {
             if (id != post.Id)
             {
@@ -106,6 +119,7 @@ namespace BlogProject.Controllers
             {
                 try
                 {
+                    post.UpdatedDate = DateTime.Now;
                     _context.Update(post);
                     await _context.SaveChangesAsync();
                 }
