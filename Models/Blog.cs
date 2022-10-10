@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlogProject.Models
@@ -20,7 +19,7 @@ namespace BlogProject.Models
         [DataType(DataType.Date)]
         [Display(Name = "Created on")]
         public DateTime CreatedDate { get; set; }
-        
+
         [DataType(DataType.Date)]
         [Display(Name = "Updated on")]
         public DateTime? UpdatedDate { get; set; }

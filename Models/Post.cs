@@ -1,5 +1,4 @@
 ﻿using BlogProject.Enums;
-using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -32,7 +31,7 @@ namespace BlogProject.Models
         [DataType(DataType.Date)]
         [Display(Name = "Updated on")]
         public DateTime? UpdatedDate { get; set; }
-        
+
         public ReadyStatus ReadyStatus { get; set; }
 
         public string? Slug { get; set; }

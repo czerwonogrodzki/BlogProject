@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BlogProject.Data;
+using BlogProject.Models;
+using BlogProject.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BlogProject.Data;
-using BlogProject.Models;
-using BlogProject.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 
 namespace BlogProject.Controllers
 {
-    public class  BlogsController : Controller
+    public class BlogsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IImageService _imageService;
@@ -102,7 +98,7 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Image")] Blog blog)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Blog blog, IFormFile? newImage)
         {
             if (id != blog.Id)
             {
@@ -113,7 +109,26 @@ namespace BlogProject.Controllers
             {
                 try
                 {
-                    _context.Update(blog);
+                    var newBlog = await _context.Blogs.FindAsync(blog.Id);
+
+                    newBlog.UpdatedDate = DateTime.Now;
+
+                    if (newBlog.Name != blog.Name)
+                    {
+                        newBlog.Name = blog.Name;
+                    }
+
+                    if (newBlog.Description != blog.Description)
+                    {
+                        newBlog.Description = blog.Description;
+                    }
+
+                    if (newImage is not null)
+                    {
+                        newBlog.ImageData = await _imageService.EncodeImageAsync(newImage);
+                    }
+
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -166,14 +181,14 @@ namespace BlogProject.Controllers
             {
                 _context.Blogs.Remove(blog);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BlogExists(int id)
         {
-          return (_context.Blogs?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Blogs?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

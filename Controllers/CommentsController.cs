@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BlogProject.Data;
+using BlogProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BlogProject.Data;
-using BlogProject.Models;
 
 namespace BlogProject.Controllers
 {
@@ -44,7 +40,7 @@ namespace BlogProject.Controllers
         //    return View(await applicationDbContext.ToListAsync());
         //}
 
-       
+
 
         // GET: Comments/Create
         public IActionResult Create()
@@ -167,14 +163,14 @@ namespace BlogProject.Controllers
             {
                 _context.Comments.Remove(comment);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CommentExists(int id)
         {
-          return (_context.Comments?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Comments?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

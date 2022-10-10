@@ -2,24 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using BlogProject.Models;
+using BlogProject.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using BlogProject.Services;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace BlogProject.Areas.Identity.Pages.Account
 {
@@ -31,13 +23,17 @@ namespace BlogProject.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<BlogUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IBlogEmailSender _emailSender;
+        private readonly IImageService _imageService;
+        private readonly IConfiguration _configuration;
 
         public RegisterModel(
             UserManager<BlogUser> userManager,
             IUserStore<BlogUser> userStore,
             SignInManager<BlogUser> signInManager,
             ILogger<RegisterModel> logger,
-            IBlogEmailSender emailSender)
+            IBlogEmailSender emailSender,
+            IImageService imageService,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -45,6 +41,8 @@ namespace BlogProject.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _imageService = imageService;
+            _configuration = configuration;
         }
 
 
@@ -80,6 +78,12 @@ namespace BlogProject.Areas.Identity.Pages.Account
             [Display(Name = "Email")]
             public string Email { get; set; }
 
+            [Display(Name = "Image")]
+            public IFormFile ImageFile { get; set; }
+
+            public byte[] ImageData { get; set; }
+
+            public string ImageType { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -108,6 +112,16 @@ namespace BlogProject.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+
+                if (Input.ImageFile != null)
+                {
+                    user.ImageData = (await _imageService.EncodeImageAsync(Input.ImageFile) ??
+                                      await _imageService.EncodeImageAsync(_configuration["DefaultUserImage"]));
+
+                    user.ContentType = Input.ImageFile is null ?
+                                       Path.GetExtension(_configuration["DefaultUserImage"]) :
+                                       _imageService.ContentType(Input.ImageFile);
+                }
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

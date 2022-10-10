@@ -4,7 +4,6 @@ using BlogProject.Services;
 using BlogProject.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 
 namespace BlogProject
 {
@@ -18,7 +17,7 @@ namespace BlogProject
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
-            
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddIdentity<BlogUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -50,7 +49,7 @@ namespace BlogProject
                 app.UseHsts();
             }
 
-            //app.Services.CreateScope().ServiceProvider.GetRequiredService<DataService>().ManageDataAsync();
+            app.Services.CreateScope().ServiceProvider.GetRequiredService<DataService>().ManageDataAsync();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

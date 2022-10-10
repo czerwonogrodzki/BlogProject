@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BlogProject.Data;
+using BlogProject.Models;
+using BlogProject.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BlogProject.Data;
-using BlogProject.Models;
-using BlogProject.Services;
 
 namespace BlogProject.Controllers
 {
@@ -15,11 +11,13 @@ namespace BlogProject.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ISlugService _slugService;
+        private readonly IImageService _imageService;
 
-        public PostsController(ApplicationDbContext context, ISlugService slugService)
+        public PostsController(ApplicationDbContext context, ISlugService slugService, IImageService imageService)
         {
             _context = context;
             _slugService = slugService;
+            _imageService = imageService;
         }
 
         // GET: Posts
@@ -67,7 +65,10 @@ namespace BlogProject.Controllers
             if (ModelState.IsValid)
             {
                 post.CreatedDate = DateTime.Now;
-                
+
+                post.ImageData = await _imageService.EncodeImageAsync(post.Image);
+                post.ContentType = _imageService.ContentType(post.Image);
+
                 var slug = _slugService.UrlFriendly(post.Title);
                 if (!_slugService.IsUnique(slug))
                 {
@@ -81,7 +82,7 @@ namespace BlogProject.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Description", post.BlogId);
+            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Name", post.BlogId);
 
             return View(post);
         }
@@ -100,6 +101,7 @@ namespace BlogProject.Controllers
                 return NotFound();
             }
             ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Name", post.BlogId);
+
             return View(post);
         }
 
@@ -108,7 +110,7 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Slug,Image")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Slug")] Post post, IFormFile? newImage)
         {
             if (id != post.Id)
             {
@@ -119,8 +121,21 @@ namespace BlogProject.Controllers
             {
                 try
                 {
-                    post.UpdatedDate = DateTime.Now;
-                    _context.Update(post);
+                    var newPost = await _context.Posts.FindAsync(post.Id);
+
+                    newPost.UpdatedDate = DateTime.Now;
+                    newPost.Title = post.Title;
+                    newPost.Abstract = post.Abstract;
+                    newPost.Content = post.Content;
+                    newPost.ReadyStatus = post.ReadyStatus;
+                    newPost.BlogId = post.BlogId;
+
+                    if (newImage is not null)
+                    {
+                        newPost.ImageData = await _imageService.EncodeImageAsync(newImage);
+                        newPost.ContentType = _imageService.ContentType(newImage);
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -136,7 +151,7 @@ namespace BlogProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Description", post.BlogId);
+            ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Name", post.BlogId);
             ViewData["BlogUserId"] = new SelectList(_context.Users, "Id", "Id", post.BlogUserId);
             return View(post);
         }
@@ -175,14 +190,14 @@ namespace BlogProject.Controllers
             {
                 _context.Posts.Remove(post);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PostExists(int id)
         {
-          return (_context.Posts?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Posts?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

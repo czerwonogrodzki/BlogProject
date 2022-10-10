@@ -34,4 +34,5 @@
             return Convert.ToInt32(file?.Length);
         }
     }
+
 }

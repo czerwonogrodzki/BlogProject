@@ -22,7 +22,7 @@ namespace BlogProject.Services
         public async Task ManageDataAsync()
         {
             await _dbContext.Database.MigrateAsync();
-            
+
             await SeedRolesAsync();
 
             await SeedUsersAsync();
@@ -47,12 +47,12 @@ namespace BlogProject.Services
 
             var adminUser = new BlogUser()
             {
-                Email = "czerwonop@gmail.com",
-                UserName = "czerwonop@gmail.com",
+                Email = "czerwonogrodzkipatryk@gmail.com",
+                UserName = "czerwonogrodzkipatryk@gmail.com",
                 FirstName = "Patryk",
                 LastName = "Czerwonogrodzki",
-                DisplayName = "Pcz",
-                PhoneNumber = "785015515",
+                DisplayName = "Patryk Czerwonogrodzki",
+                PhoneNumber = "123456789",
                 EmailConfirmed = true
             };
 
@@ -62,16 +62,16 @@ namespace BlogProject.Services
 
             var modUser = new BlogUser()
             {
-                Email = "czerwonop@gmail.com1",
-                UserName = "czerwonop@gmail.com1",
+                Email = "czerwonogrodzkipatryk@mailinator.com",
+                UserName = "czerwonogrodzkipatryk@mailinator.com",
                 FirstName = "Patryk1",
                 LastName = "Czerwonogrodzki1",
-                DisplayName = "Pcz1", 
-                PhoneNumber = "7850155151",
+                DisplayName = "Patryk Czerwonogrodzki1",
+                PhoneNumber = "1234567890",
                 EmailConfirmed = true
             };
 
-            await _userManager.CreateAsync(modUser, "Abc123@!");
+            await _userManager.CreateAsync(modUser, "Abc123@!1");
 
             await _userManager.AddToRoleAsync(modUser, BlogRole.Moderator.ToString());
 
