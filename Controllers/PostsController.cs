@@ -31,9 +31,9 @@ namespace BlogProject.Controllers
         }
 
         // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string slug)
         {
-            if (id == null || _context.Posts == null)
+            if (string.IsNullOrEmpty(slug))
             {
                 return NotFound();
             }
@@ -42,7 +42,7 @@ namespace BlogProject.Controllers
                 .Include(p => p.Blog)
                 .Include(p => p.BlogUser)
                 .Include(p => p.Tags)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Slug == slug);
             if (post == null)
             {
                 return NotFound();
@@ -77,12 +77,28 @@ namespace BlogProject.Controllers
                 post.ContentType = _imageService.ContentType(post.Image);
 
                 var slug = _slugService.UrlFriendly(post.Title);
-                if (!_slugService.IsUnique(slug))
+
+                var validationError = false;
+
+                if (string.IsNullOrEmpty(slug))
                 {
+                    validationError = true;
+                    ModelState.AddModelError("Title", "Title cannot be blank");
+                }
+                
+                else if (!_slugService.IsUnique(slug))
+                {
+                    validationError = true;
                     ModelState.AddModelError("Title", "Title you provided cannot be used");
+                }
+
+                 
+                if (validationError)
+                {
                     ViewData["tagValues"] = string.Join(",", tagValues);
                     return View(post);
                 }
+
                 post.Slug = slug;
 
                 _context.Add(post);
@@ -131,7 +147,7 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Slug")] Post post, IFormFile? newImage, List<string> tagValues)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus")] Post post, IFormFile? newImage, List<string> tagValues)
         {
             if (id != post.Id)
             {
@@ -150,6 +166,22 @@ namespace BlogProject.Controllers
                     newPost.Content = post.Content;
                     newPost.ReadyStatus = post.ReadyStatus;
                     newPost.BlogId = post.BlogId;
+
+                    var newSlug = _slugService.UrlFriendly(post.Title);
+                    if(newSlug != newPost.Slug)
+                    {
+                        if (_slugService.IsUnique(newSlug))
+                        {
+                            newPost.Title = post.Title;
+                            newPost.Slug = newSlug;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("Title", "Title you provided cannot be used");
+                            ViewData["tagValues"] = string.Join(",", post.Tags.Select(t => t.Text));
+                            return View(post);
+                        }
+                    }
 
                     if (newImage is not null)
                     {

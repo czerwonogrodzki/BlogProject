@@ -60,8 +60,16 @@ namespace BlogProject
             app.UseAuthorization();
 
             app.MapControllerRoute(
+                name: "slug",
+                pattern: "post/{*slug}",
+                defaults: new { controller = "Posts", action = "Details" });
+
+            app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+           
+
             app.MapRazorPages();
 
             app.Run();
