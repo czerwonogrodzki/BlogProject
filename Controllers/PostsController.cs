@@ -1,6 +1,7 @@
 ﻿using BlogProject.Data;
 using BlogProject.Models;
 using BlogProject.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +13,14 @@ namespace BlogProject.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ISlugService _slugService;
         private readonly IImageService _imageService;
+        private readonly UserManager<BlogUser> _userManager;
 
-        public PostsController(ApplicationDbContext context, ISlugService slugService, IImageService imageService)
+        public PostsController(ApplicationDbContext context, ISlugService slugService, IImageService imageService, UserManager<BlogUser> userManager)
         {
             _context = context;
             _slugService = slugService;
             _imageService = imageService;
+            _userManager = userManager;
         }
 
         // GET: Posts
@@ -38,6 +41,7 @@ namespace BlogProject.Controllers
             var post = await _context.Posts
                 .Include(p => p.Blog)
                 .Include(p => p.BlogUser)
+                .Include(p => p.Tags)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
             {
@@ -66,6 +70,9 @@ namespace BlogProject.Controllers
             {
                 post.CreatedDate = DateTime.Now;
 
+                var authorId = _userManager.GetUserId(User);
+                post.BlogUserId = authorId;
+
                 post.ImageData = await _imageService.EncodeImageAsync(post.Image);
                 post.ContentType = _imageService.ContentType(post.Image);
 
@@ -73,12 +80,24 @@ namespace BlogProject.Controllers
                 if (!_slugService.IsUnique(slug))
                 {
                     ModelState.AddModelError("Title", "Title you provided cannot be used");
-                    ViewData["TagValues"] = string.Join(",", tagValues);
+                    ViewData["tagValues"] = string.Join(",", tagValues);
                     return View(post);
                 }
                 post.Slug = slug;
 
                 _context.Add(post);
+                await _context.SaveChangesAsync();
+
+                foreach (var tag in tagValues)
+                {
+                    _context.Add(new Tag()
+                    {
+                        PostId = post.Id,
+                        BlogUserId = authorId,
+                        Text = tag
+                    });
+                }
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -95,12 +114,14 @@ namespace BlogProject.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Posts.FindAsync(id);
+            var post = await _context.Posts.Include(p => p.Tags).FirstOrDefaultAsync(p => p.Id == id);
+            
             if (post == null)
             {
                 return NotFound();
             }
             ViewData["BlogId"] = new SelectList(_context.Blogs, "Id", "Name", post.BlogId);
+            ViewData["tagValues"] = string.Join(",", post.Tags.Select(t => t.Text));
 
             return View(post);
         }
@@ -110,7 +131,7 @@ namespace BlogProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Slug")] Post post, IFormFile? newImage)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Slug")] Post post, IFormFile? newImage, List<string> tagValues)
         {
             if (id != post.Id)
             {
@@ -121,7 +142,7 @@ namespace BlogProject.Controllers
             {
                 try
                 {
-                    var newPost = await _context.Posts.FindAsync(post.Id);
+                    var newPost = await _context.Posts.Include(p => p.Tags).FirstOrDefaultAsync(p => p.Id == post.Id);
 
                     newPost.UpdatedDate = DateTime.Now;
                     newPost.Title = post.Title;
@@ -134,6 +155,18 @@ namespace BlogProject.Controllers
                     {
                         newPost.ImageData = await _imageService.EncodeImageAsync(newImage);
                         newPost.ContentType = _imageService.ContentType(newImage);
+                    }
+
+                    _context.Tags.RemoveRange(newPost.Tags);
+
+                    foreach(var tagValue in tagValues)
+                    {
+                        _context.Add(new Tag()
+                        {
+                            PostId = post.Id,
+                            BlogUserId = newPost.BlogUserId,
+                            Text = tagValue
+                        });
                     }
 
                     await _context.SaveChangesAsync();
