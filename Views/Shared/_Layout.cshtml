@@ -36,8 +36,12 @@
                     <ul class="navbar-nav ms-auto py-4 py-lg-0">
                         <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" asp-controller="Home" asp-action="Index">Home</a></li>
                         <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" asp-controller="Home" asp-action="About">About</a></li>
-                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="post.html">Sample Post</a></li>
-                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">Contact</a></li>
+                        <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                        @if(User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" asp-controller="Blogs" asp-action="Create">Create Blog</a></li>
+                        }
+                        
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -51,6 +55,15 @@
                         <div class="site-heading">
                             <h1>Clean Blog</h1>
                             <span class="subheading">A Blog Theme by Start Bootstrap</span>
+
+                            <form asp-action="Search" asp-controller="Posts">
+                                <div class="input-group mt-5">
+                                    <input type="text" name="SearchTerm" class="form-control" />
+                                    <div class="input-group-append">
+                                        <button class="btn btn-warning btn-block btn-sm" type="submit">Search</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
