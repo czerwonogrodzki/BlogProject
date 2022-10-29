@@ -1,22 +1,23 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 
 namespace BlogProject.Enums
 {
     public enum ModerationType
     {
-        [Description("Offensive language")]
+        [Display(Name = "Offensive language")]
         Language,
-        [Description("Illegal drugs and other substances")]
+        [Display(Name = "Illegal drugs and other substances")]
         IllegalSubstances,
-        [Description("Racism, xenophobia, homophobia, etc.")]
+        [Display(Name = "Hate speech")]
         HateSpeech,
-        [Description("Sexual content")]
+        [Display(Name = "Sexual content")]
         Sexual,
-        [Description("Harrasment")]
+        [Display(Name = "Harrasment")]
         Harassment,
-        [Description("Spreading false information")]
+        [Display(Name = "Spreading false information")]
         FalseInformation,
-        [Description("Everything that doesn't include other categories")]
         Other
 
     }
