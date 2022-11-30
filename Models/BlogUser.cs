@@ -17,7 +17,7 @@ namespace BlogProject.Models
 
         [Required]
         [StringLength(50, ErrorMessage = "{0} must be between {2} and {1} characters long.", MinimumLength = 2)]
-        [Display(Name = "Diplay Name")]
+        [Display(Name = "Display Name")]
         public string DisplayName { get; set; }
 
         public byte[]? ImageData { get; set; }
