@@ -33,6 +33,7 @@ namespace BlogProject
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<ISlugService, SlugService>();
+            builder.Services.AddScoped<BlogSearchService>();
 
             var app = builder.Build();
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -52,6 +53,18 @@ namespace BlogProject
             app.Services.CreateScope().ServiceProvider.GetRequiredService<DataService>().ManageDataAsync();
 
             app.UseHttpsRedirection();
+
+            app.Use(async (context, next) =>
+            {
+                await next();
+
+                if (context.Response.StatusCode == 404)
+                {
+                    context.Request.Path = "/Home/Index";
+                    await next();
+                }
+            });
+
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -65,10 +78,18 @@ namespace BlogProject
                 defaults: new { controller = "Posts", action = "Details" });
 
             app.MapControllerRoute(
+                name: "name",
+                pattern: "blog/{*id}",
+                defaults: new { controller = "Posts", action = "BlogPostIndex" });
+
+            app.MapControllerRoute(
+                name: "tag",
+                pattern: "tag/{*id}",
+                defaults: new { controller = "Posts", action = "TagIndex" });
+
+            app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
-           
 
             app.MapRazorPages();
 
