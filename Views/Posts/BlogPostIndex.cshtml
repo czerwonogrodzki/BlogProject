@@ -1,0 +1,91 @@
+﻿@using BlogProject.Services
+@using BlogProject.Enums
+@using Microsoft.AspNetCore.Identity
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common
+
+@inject IImageService imageService
+@inject UserManager<BlogUser> userManager
+@model IPagedList<BlogProject.Models.Post>
+
+@if (Model.Count == 0)
+{
+    <h5 class="text-center">No posts found :(</h5>
+}
+
+<div class="row">
+    @foreach (var post in Model)
+    {
+        var isAuthor = false;
+        if (User.Identity.IsAuthenticated)
+        {
+            isAuthor = (post.BlogUserId == userManager.GetUserId(User));
+        }
+
+        <div class="col-sm-2 col-lg-4">
+            @*<div class="card border-dark">*@
+                @*<img class="card-img-top" src="@imageService.DecodeImage(post.ImageData,  post.ContentType)" />*@
+                <div class="card-body text-center">
+                    @*<div class="bg-warning">
+                        <hr class="card-hr" />
+                        <h5 class="card-title">@post.Title</h5>
+                        <hr class="card-hr" />
+                    </div>
+                    <div>
+                        <p class="card-text">@post.Abstract</p>
+                    </div>
+
+                    <br />
+                    <div class="text-center">
+                        <a class="btn btn-dark btn-sm btn-block mb-2" asp-action="Details" asp-controller="Posts" asp-route-slug="@post.Slug">Read More</a>
+                    </div>*@
+
+                    <div class="card mb-3">
+                        <img src="@imageService.DecodeImage(post.ImageData, post.ContentType)" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <a asp-controller="Posts" asp-action="Details" asp-route-slug="@post.Slug">
+                                <h5 class="card-title">@post.Title</h5>
+                                <p class="card-text">@post.Abstract</p>
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (User.IsInRole(BlogRole.Admin.ToString()) || isAuthor)
+                    {
+                        <div class="text-center">
+                            <a class="btn btn-success btn-sm btn-block border-dark" asp-action="Edit" asp-controller="Posts" asp-route-id="@post.Id">Edit Post</a>
+                        </div>
+                        <div class="text-center">
+                            <a class="btn btn-danger btn-sm btn-block border-dark" asp-action="Delete" asp-controller="Posts" asp-route-id="@post.Id">Delete Post</a>
+                        </div>
+                    }
+                </div>
+                
+            </div>
+
+        @*</div>*@
+    }
+</div>
+
+@if (Model.Count == 0){}
+else{
+    <hr />
+
+    <div class="row">
+        <div class="col h5">
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            @Html.PagedListPager(Model, page => Url.Action("BlogPostIndex", new { id = Model.FirstOrDefault().BlogId, page = page }),
+        new PagedListRenderOptions
+        {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link"}
+        })
+        </div>
+    </div>
+}
