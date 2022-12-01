@@ -52,6 +52,10 @@ namespace BlogProject.Controllers
         [Authorize]
         public IActionResult Create()
         {
+            ViewData["HeaderImage"] = "";
+            ViewData["MainText"] = "Create your blog";
+            ViewData["SubText"] = "";
+
             return View();
         }
 
@@ -71,7 +75,7 @@ namespace BlogProject.Controllers
                 _context.Add(blog);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
             ViewData["BlogUserId"] = new SelectList(_context.Users, "Id", "Id", blog.BlogUserId);
             return View(blog);

@@ -1,8 +1,12 @@
-﻿using BlogProject.Models;
+﻿using BlogProject.Data;
+using BlogProject.Models;
 using BlogProject.Services;
 using BlogProject.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
+using X.PagedList;
 
 namespace BlogProject.Controllers
 {
@@ -10,25 +14,48 @@ namespace BlogProject.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IBlogEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, IBlogEmailSender emailSender)
+        public HomeController(ILogger<HomeController> logger, IBlogEmailSender emailSender, ApplicationDbContext context)
         {
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int? page)
         {
-            return View();
+            var pageNumber = page ?? 1;
+            var pageSize = 5;
+
+            var blogs = _context.Blogs
+                .Include(b => b.BlogUser)
+                .OrderByDescending(b => b.CreatedDate)
+                .ToPagedListAsync(pageNumber, pageSize);
+
+            ViewData["HeaderImage"] = "/img/home-bg.jpg";
+            ViewData["MainText"] = "Blog Project";
+            ViewData["SubText"] = "Simple blog built in ASP.NET Core MVC";
+
+
+            return View(await blogs);
         }
 
         public IActionResult About()
         {
+            ViewData["HeaderImage"] = "";
+            ViewData["MainText"] = "About";
+            ViewData["SubText"] = "";
+
             return View();
         }
 
         public IActionResult Contact()
         {
+            ViewData["HeaderImage"] = "";
+            ViewData["MainText"] = "Contact Me";
+            ViewData["SubText"] = "";
+
             return View();
         }
 
