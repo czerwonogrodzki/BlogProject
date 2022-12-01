@@ -1,0 +1,39 @@
+version: '3.4'
+
+networks:
+  blogproject-dev:
+    driver: bridge 
+
+services:
+  blogproject:
+    image: blogproject:latest
+    depends_on:
+      - "postgres_image"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      DefaultConnection: "host=postgres_image;port=5432;database=BlogProject;username=postgres;password=admin"
+    networks:
+      - blogproject-dev  
+  
+  postgres_image:
+    image: postgres:latest
+    ports:
+      - "5432"
+    restart: always
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "BlogProject"
+    networks:
+      - blogproject-dev
+volumes:
+  db_volume:
+         
+    
+     

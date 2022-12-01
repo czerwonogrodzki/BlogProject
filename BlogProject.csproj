@@ -7,6 +7,7 @@
     <UserSecretsId>aspnet-BlogProject-C30140D1-0B6A-48EF-A7C7-E1BE0639F5BB</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <DockerComposeProjectPath>docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
