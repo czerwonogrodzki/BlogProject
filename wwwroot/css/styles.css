@@ -4690,8 +4690,8 @@ textarea.form-control-lg {
 .page-item.active .page-link {
   z-index: 3;
   color: #fff;
-  background-color: #0085A1;
-  border-color: #0085A1;
+  background-color: #000;
+  border-color: #000;
 }
 .page-item.disabled .page-link {
   color: #6c757d;
@@ -11117,24 +11117,24 @@ footer {
 }
 
 header.masthead {
-  position: relative;
-  margin-bottom: 3rem;
-  padding-top: calc(8rem + 57px);
-  padding-bottom: 8rem;
-  background: no-repeat center center;
-  background-color: #6c757d;
-  background-size: cover;
-  background-attachment: scroll;
+    position: relative;
+    margin-bottom: 3rem;
+    padding-top: calc(8rem + 57px);
+    padding-bottom: 8rem;
+    background: no-repeat center center;
+    background-color: #8d8d8d;
+    background-size: cover;
+    background-attachment: scroll;
 }
 header.masthead:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #212529;
-  opacity: 0.5;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #8d8d8d;
+    opacity: 0.5;
 }
 header.masthead .page-heading,
 header.masthead .post-heading,
