@@ -9,9 +9,8 @@
             <a class="nav-link px-lg-3 py-3 py-lg-4" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage</a>
     </li>
     <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button type="submit" class="nav-link px-lg-3 py-3 py-lg-4 btn text-white text-uppercase">Logout</button>
-        </form>
+        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"></form>
+        <a href="#" class="nav-link px-lg-3 py-3 py-lg-4" onclick='document.forms["logoutForm"].submit()'>Logout</a>
     </li>
 }
 else
