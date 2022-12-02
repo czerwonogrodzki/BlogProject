@@ -31,7 +31,7 @@ Abc123@!1
 ##
 Created with
 
-*C# | ASP.NET Core | PostgreSQL | Entity Framework | Git | Bootstrap 5 | JavaScript | HTML5 | Visual Studio | Summernote | Docker*
+*C# | ASP.NET Core | PostgreSQL | Entity Framework | Git | Bootstrap 5 | JavaScript | HTML5 | Visual Studio | Docker*
 
 
 
